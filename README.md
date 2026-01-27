@@ -1,6 +1,6 @@
 # nav2_waypoint
 
-키보드 입력을 GUI/매니퓰레이터 신호로 분리하고, 시나리오 상태머신으로 Nav2 목표를 보내는 ROS2 Python 패키지입니다.
+키보드 입력을 GUI/매니퓰레이터 신호로 분리하고, 시나리오 상태머신으로 Nav2 목표를 보내는 ROS2 Python
 
 ## 개발 환경
 - OS: Ubuntu 22.04 LTS
