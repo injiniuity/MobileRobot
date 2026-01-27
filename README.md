@@ -13,7 +13,7 @@ nav2_waypoint/
 - package.xml
 - setup.py
 - setup.cfg
-- README.md
+- Nav2_prams.yaml : /home/pinky/pinky_pro/src/pinky_pro/pinky_navigation/params/nav2_params.yaml Nav2 파라미터 파일
 - goal_points.json : 목표 포인트 좌표
 - run_scenario.py : 전체 노드를 한 번에 실행하는 런처
 - scenario_manager.py : 시나리오 FSM (GUI/매니퓰레이터 입력 → 목표 전환)
