@@ -1,5 +1,4 @@
 # nav2_waypoint
-
 키보드 입력을 GUI/매니퓰레이터 신호로 분리하고, 시나리오 상태머신으로 Nav2 목표를 보내는 ROS2 Python
 
 ## 개발 환경
@@ -7,6 +6,12 @@
 - ROS 2: Jazzy
 - 언어: Python (rclpy)
 - 네비게이션: Nav2
+
+## 노드 설명
+<img width="769" height="265" alt="image" src="https://github.com/user-attachments/assets/eea96c0a-26cd-4367-be0b-8872734a0a7d" />
+|----------|------|
+| src/robot_interface.cpp | OpenManipulator 제어 |
+| src/pnp_node.py | Pick & Place 로직 |
 
 ## 구성 파일
 nav2_waypoint/
