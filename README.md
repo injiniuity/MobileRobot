@@ -1,15 +1,18 @@
 # nav2_waypoint
 키보드 입력을 GUI/매니퓰레이터 신호로 분리하고, 시나리오 상태머신으로 Nav2 목표를 보내는 ROS2 Python
-
+<br>
+<br>
 ## 개발 환경
 - OS: Ubuntu 22.04 LTS
 - ROS 2: Jazzy
 - 언어: Python (rclpy)
 - 네비게이션: Nav2
-
+<br>
+<br>
 ## 노드 설명
 <img width="769" height="265" alt="image" src="https://github.com/user-attachments/assets/eea96c0a-26cd-4367-be0b-8872734a0a7d" />
-
+<br>
+<br>
 | 노드 | 설명 |
 |------|------|
 | /keyboard_trigger | 키보드 입력 처리 |
@@ -17,9 +20,8 @@
 | /manip_trigger | 임의적으로 만든 매니퓰레이터 역할을 대신하는 노드<br>• Q : 하차 완료 (부품입고)<br>• W : 상차 완료 (모듈입고) |
 | /go_to_goal | Nav2를 통해 로봇을 목표 지점으로 이동시키는 노드 |
 | /scenario_manager | 중앙 시나리오 제어 노드<br>• /gui_cmd, /manip_cmd 입력 처리<br>• 현재 업무에 맞는 입력만 허용<br>• 이동 포인트 결정<br>• go_to_goal 액션으로 목표 전송<br>• 도착 시 /arrived_point 발행<br>• 업무 변경(1/3/4), 대기(P) 같은 예외 입력 처리<br>• 키 입력 → 상태 전이 → 이동 명령 담당 |
-
-
-
+<br>
+<br>
 ## 구성 파일
 nav2_waypoint/
 - package.xml
@@ -33,17 +35,20 @@ nav2_waypoint/
 - keyboard_trigger.py : 키보드 입력 → `/keyboard_raw`
 - gui_trigger.py : `/keyboard_raw` → `/gui_cmd` 필터
 - manip_trigger.py : `/keyboard_raw` → `/manip_cmd` 필터
-
+<br>
+<br>
 ## 주요 토픽/액션
 ### 토픽(Topic)
 - `/keyboard_raw` (String): 키보드 원시 입력
 - `/gui_cmd` (String): GUI 명령
 - `/manip_cmd` (String): 매니퓰레이터 명령
 - `/arrived_point` (String): 도착 포인트 알림
-
+<br>
+<br>
 ### 액션(Action)
 - `/go_to_goal` (NavigateToPose action): 시나리오 → 네비게이션 브리지
-
+<br>
+<br>
 ## 키 매핑
 ### GUI 입력(`/gui_cmd`)
 - `1` : 업무1 시작 → point1
@@ -52,14 +57,17 @@ nav2_waypoint/
 - `P` : 대기 장소(point0)
 - `SPACE` : GUI 상차 완료 (업무1/3에서 사용)
 - `U` : GUI 하차 완료 (업무2/3에서 사용)
-
+<br>
+<br>
 ### 매니퓰레이터 입력(`/manip_cmd`)
 - `Q` : 하차 완료 (업무1에서 사용)
 - `W` : 상차 완료 (업무2에서 사용)
-
+<br>
+<br>
 > 입력의 유효성은 `scenario_manager`의 상태에 따라 결정됩니다.  
 > 예: `WAIT_SPACE_FROM_3` 상태에서는 `W`만 유효합니다.
-
+<br>
+<br>
 ## 실행 방법
 ```bash
 cd /home/pinky/pinky_pro
@@ -67,7 +75,8 @@ colcon build --packages-select nav2_waypoint --symlink-install
 source /home/pinky/pinky_pro/install/setup.bash
 ros2 run nav2_waypoint run_scenario
 ```
-
+<br>
+<br>
 ## 동작 흐름(요약)
 - 키보드 입력 → `/keyboard_raw`
 - GUI/매니퓰레이터 필터 → `/gui_cmd`, `/manip_cmd`
