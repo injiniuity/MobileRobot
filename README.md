@@ -10,27 +10,17 @@
 
 ## 구성 파일
 nav2_waypoint/
-├─ package.xml
-├─ setup.py
-├─ setup.cfg
-├─ README.md
-├─ resource/
-│  └─ nav2_waypoint
-├─ goal_points.json
-├─ run_scenario.py
-├─ scenario_manager.py
-├─ Nav2_classes.py
-├─ keyboard_trigger.py
-├─ gui_trigger.py
-└─ manip_trigger.py
-
-- `run_scenario.py`: 전체 노드를 한 번에 실행하는 런처
-- `scenario_manager.py`: 시나리오 FSM (GUI/매니퓰레이터 입력 → 목표 전환)
-- `Nav2_classes.py`: `go_to_goal` 액션 서버/브리지
-- `keyboard_trigger.py`: 키보드 입력 → `/keyboard_raw`
-- `gui_trigger.py`: `/keyboard_raw` → `/gui_cmd` 필터
-- `manip_trigger.py`: `/keyboard_raw` → `/manip_cmd` 필터
-- `goal_points.json`: 목표 포인트 좌표
+- package.xml
+- setup.py
+- setup.cfg
+- README.md
+- goal_points.json : 목표 포인트 좌표
+- run_scenario.py : 전체 노드를 한 번에 실행하는 런처
+- scenario_manager.py : 시나리오 FSM (GUI/매니퓰레이터 입력 → 목표 전환)
+- Nav2_classes.py : `go_to_goal` 액션 서버/브리지
+- keyboard_trigger.py : 키보드 입력 → `/keyboard_raw`
+- gui_trigger.py : `/keyboard_raw` → `/gui_cmd` 필터
+- manip_trigger.py : `/keyboard_raw` → `/manip_cmd` 필터
 
 ## 주요 토픽/액션
 ### 토픽(Topic)
