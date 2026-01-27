@@ -13,10 +13,10 @@
 | 노드 | 설명 |
 |------|------|
 | /keyboard_trigger | 키보드 입력 처리 |
-| /gui_trigger | GUI 대체 노드 · P: 대기 장소 이동 · 1/3/4: 업무 할당(부품입고/모듈입고/모듈출고) · SPACE: 상차 완료 · U: 하차 완료 |
-| /manip_trigger | 매니퓰레이터 대체 노드 · Q: 하차 완료(부품입고) · W: 상차 완료(모듈입고) |
+| /gui_trigger | GUI 대체 노드<br>• P : 대기 장소 이동<br>• 1 / 3 / 4 : 업무 할당 (부품입고 / 모듈입고 / 모듈출고)<br>• SPACE : 상차 완료<br>• U : 하차 완료 |
+| /manip_trigger | 매니퓰레이터 대체 노드<br>• Q : 하차 완료 (부품입고)<br>• W : 상차 완료 (모듈입고) |
 | /go_to_goal | Nav2를 통해 로봇을 목표 지점으로 이동시키는 노드 |
-| /scenario_manager | /gui_cmd·/manip_cmd 입력 처리 · 현재 업무에 맞는 입력만 허용 · 이동 포인트 결정 · go_to_goal 액션으로 목표 전송 · 도착 시 /arrived_point 발행 · 업무 변경(1/3/4)·대기(P) 같은 예외 입력 처리 · 키 입력→상태 전이→이동 명령을 담당하는 중앙 제어 노드 |
+| /scenario_manager | 중앙 시나리오 제어 노드<br>• /gui_cmd, /manip_cmd 입력 처리<br>• 현재 업무에 맞는 입력만 허용<br>• 이동 포인트 결정<br>• go_to_goal 액션으로 목표 전송<br>• 도착 시 /arrived_point 발행<br>• 업무 변경(1/3/4), 대기(P) 같은 예외 입력 처리<br>• 키 입력 → 상태 전이 → 이동 명령 담당 |
 
 
 
