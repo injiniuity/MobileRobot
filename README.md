@@ -9,9 +9,12 @@
 
 ## 노드 설명
 <img width="769" height="265" alt="image" src="https://github.com/user-attachments/assets/eea96c0a-26cd-4367-be0b-8872734a0a7d" />
-|----------|------|
-| src/robot_interface.cpp | OpenManipulator 제어 |
-| src/pnp_node.py | Pick & Place 로직 |
+|제목|내용|설명|
+|------|---|---|
+|테스트1|테스트2|테스트3|
+|테스트1|테스트2|테스트3|
+|테스트1|테스트2|테스트3|
+
 
 ## 구성 파일
 nav2_waypoint/
