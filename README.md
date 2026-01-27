@@ -17,12 +17,12 @@
 <img width="1257" height="343" alt="image" src="https://github.com/user-attachments/assets/9bae6b09-2877-4784-8274-0b1161acfb76" />
 
 | 파일 | 노드 | 설명 | 
-|------|------|
-| /keyboard_trigger | 키보드 입력 처리 |
-| /gui_trigger | 임의적으로 만든 gui 역할을 대신하는 노드<br>• P : 대기 장소 이동<br>• 1 / 3 / 4 : 업무 할당 (부품입고 / 모듈입고 / 모듈출고)<br>• SPACE : 상차 완료<br>• U : 하차 완료 |
-| /manip_trigger | 임의적으로 만든 매니퓰레이터 역할을 대신하는 노드<br>• Q : 하차 완료 (부품입고)<br>• W : 상차 완료 (모듈입고) |
-| /go_to_goal | Nav2를 통해 로봇을 목표 지점으로 이동시키는 노드 |
-| /scenario_manager | 중앙 시나리오 제어 노드<br>• /gui_cmd, /manip_cmd 입력 처리<br>• 현재 업무에 맞는 입력만 허용<br>• 이동 포인트 결정<br>• go_to_goal 액션으로 목표 전송<br>• 도착 시 /arrived_point 발행<br>• 업무 변경(1/3/4), 대기(P) 같은 예외 입력 처리<br>• 키 입력 → 상태 전이 → 이동 명령 담당 |
+|------|------|------|
+| keyboard_trigger.py | /keyboard_trigger | 키보드 입력 처리 |
+| gui_trigger.py | /gui_trigger | 임의적으로 만든 gui 역할을 대신하는 노드<br>• P : 대기 장소 이동<br>• 1 / 3 / 4 : 업무 할당 (부품입고 / 모듈입고 / 모듈출고)<br>• SPACE : 상차 완료<br>• U : 하차 완료 |
+| manip_trigger.py | /manip_trigger | 임의적으로 만든 매니퓰레이터 역할을 대신하는 노드<br>• Q : 하차 완료 (부품입고)<br>• W : 상차 완료 (모듈입고) |
+| Nav2_classes.py | /go_to_goal | Nav2를 통해 로봇을 목표 지점으로 이동시키고 로그 관리하는 노드 |
+| scenario_manager.py | /scenario_manager | 중앙 시나리오 제어 노드<br>• /gui_cmd, /manip_cmd 입력 처리<br>• 현재 업무에 맞는 입력만 허용<br>• 이동 포인트 결정<br>• go_to_goal 액션으로 목표 전송<br>• 도착 시 /arrived_point 발행<br>• 업무 변경(1/3/4), 대기(P) 같은 예외 입력 처리<br>• 키 입력 → 상태 전이 → 이동 명령 담당 |
 
 <br>
 <br>
