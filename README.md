@@ -10,23 +10,14 @@
 ## 노드 설명
 <img width="769" height="265" alt="image" src="https://github.com/user-attachments/assets/eea96c0a-26cd-4367-be0b-8872734a0a7d" />
 
-|노드|설명|
-|------|---|
-|/keyboard_trigger|키보드 입력 처리|
-|/gui_trigger|임의적으로 만든 gui 역할을 대신하는 노드
-P : 대기 장소로 이동
-1/3/4 : 업무 할당 (부품입고/모듈입고/모듈출고)
-SPACE : GUI 상차 완료
-U : GUI 하차 완료|
-|/manip_trigger|임의적으로 만든 매니퓰레이터 역할을 대신하는 노드
-Q : 매니퓰레이터 하차 완료 (부품입고)
-W : 매니퓰레이터 상차 완료 (모듈입고)|
-|/go_to_goal|로봇이 Nav2로 이동하도록하는 노드|
-|/senario_manager|/gui_cmd, /manip_cmd를 받아서 현재 업무에 맞는 입력만 처리
-어떤 포인트로 이동할지 결정
-go_to_goal 액션에 목표를 보내서 실제 이동 수행도착하면 /arrived_point로 도착 지점을 발행
-“업무 변경(1/3/4)”이나 “대기 장소(P)” 같은 예외 입력도 처리
-키 입력 → 상태 전이 → 이동 명령을 책임지는 중앙 제어 노드|
+| 노드 | 설명 |
+|------|------|
+| /keyboard_trigger | 키보드 입력 처리 |
+| /gui_trigger | GUI 대체 노드 · P: 대기 장소 이동 · 1/3/4: 업무 할당(부품입고/모듈입고/모듈출고) · SPACE: 상차 완료 · U: 하차 완료 |
+| /manip_trigger | 매니퓰레이터 대체 노드 · Q: 하차 완료(부품입고) · W: 상차 완료(모듈입고) |
+| /go_to_goal | Nav2를 통해 로봇을 목표 지점으로 이동시키는 노드 |
+| /scenario_manager | /gui_cmd·/manip_cmd 입력 처리 · 현재 업무에 맞는 입력만 허용 · 이동 포인트 결정 · go_to_goal 액션으로 목표 전송 · 도착 시 /arrived_point 발행 · 업무 변경(1/3/4)·대기(P) 같은 예외 입력 처리 · 키 입력→상태 전이→이동 명령을 담당하는 중앙 제어 노드 |
+
 
 
 ## 구성 파일
