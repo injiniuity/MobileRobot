@@ -87,13 +87,15 @@ nav2_waypoint/
 
 ## 패키지 실행 방법
 ```bash
+[Robot]
 cd /home/pinky/pinky_pro
 colcon build --packages-select nav2_waypoint --symlink-install
 source /home/pinky/pinky_pro/install/setup.bash
 ros2 run nav2_waypoint run_scenario
-
 ros2 launch pinky_bringup bringup_robot.launch.xml
 ros2 launch pinky_navigation bringup_launch.xml map:=jini_EmptyMap.yaml
+
+[PC]
 ros2 launch pinky_navigation map_view.launch.xml
 ```
 
