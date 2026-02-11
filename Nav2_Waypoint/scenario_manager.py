@@ -5,7 +5,7 @@ import rclpy
 from rclpy.action import ActionClient  
 from rclpy.node import Node 
 from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy  
-from std_msgs.msg import String  
+from std_msgs.msg import String, Bool, Int32  
 
 from action_msgs.msg import GoalStatus  
 from geometry_msgs.msg import PoseStamped  
@@ -35,15 +35,23 @@ class ScenarioManager(Node):
         self._pending_start = False  # 대기장소 이동 예약 여부
         self._pending_target = None  # 취소 후 이동할 새 목표
         self._pending_post_state = None  # 새 목표 도착 후 상태
-        # GUI / 매니퓰레이터 입력 분리
-        self._gui_sub = self.create_subscription(
-            String, "/gui_cmd", self._gui_cb, qos  # GUI 명령 구독 / 키보드 입력값 들어옴
+        # GUI 입력 분리 (이동/상차/하차)
+        self._move_sub = self.create_subscription(
+            String, "/move_role", self._move_cb, qos  # 이동 역할
+        )
+        self._load_sub = self.create_subscription(
+            Bool, "/load_done", self._load_cb, qos  # 상차 완료
+        )
+        self._unload_sub = self.create_subscription(
+            Bool, "/unload_done", self._unload_cb, qos  # 하차 완료
         )
         self._manip_sub = self.create_subscription(
-            String, "/manip_cmd", self._manip_cb, qos  # 매니퓰레이터 명령 구독 / 키보드 입력값 들어옴
+            Bool, "/pick_and_place/done", self._manip_cb, qos  # 매니퓰레이터 완료 신호
         )
         # 도착 지점 알림(포인트 이름으로 토픽발행)
-        self._arrived_pub = self.create_publisher(String, "/arrived_point", 10)
+        self._arrived_pub = self.create_publisher(Int32, "/arrived_point", 10)
+        # 매니퓰레이터 시작 신호
+        self._manip_start_pub = self.create_publisher(Bool, "/pick_and_place/start", 10)
 
     def _declare_params(self):
         # 파라미터 선언
@@ -57,70 +65,61 @@ class ScenarioManager(Node):
         qos.durability = DurabilityPolicy.VOLATILE  # 휘발성
         return qos  # QoS 반환
 
-    def _gui_cb(self, msg):
-        # GUI 명령 콜백
-        cmd = msg.data.strip()  # 입력 문자열 정리
+    def _move_cb(self, msg):
+        # 이동 역할 콜백 (1/3/4/P)
+        cmd = msg.data.strip()
         if not cmd:
-            return  # 빈 입력 무시
-        # GUI 명령: P, 1/3/4, SPACE, U
+            return
         if cmd.lower() == "p":
-            self._go_start_point()  # 대기장소 이동
+            self._go_start_point()
             return
-
-        if cmd in ("1", "3", "4"):  # 업무 할당(즉시 이동)
+        if cmd in ("1", "3", "4"):
             if cmd == "1":
-                self._interrupt_and_go("point1", "WAIT_SPACE_FROM_1")  # 업무1 시작
+                self._interrupt_and_go("point1", "WAIT_SPACE_FROM_1")
             elif cmd == "3":
-                self._interrupt_and_go("point3", "WAIT_SPACE_FROM_3")  # 업무2 시작
+                self._interrupt_and_go("point3", "WAIT_SPACE_FROM_3")
             elif cmd == "4":
-                self._interrupt_and_go("point4", "WAIT_SPACE_FROM_4")  # 업무3 시작
+                self._interrupt_and_go("point4", "WAIT_SPACE_FROM_4")
             return
+        self.get_logger().info(f"Unknown move role: {cmd}")
 
-        if cmd.upper() == "SPACE" or cmd == " ":
-            if self._state == "WAIT_SPACE_FROM_1":  # 업무1 상차 완료
-                self._start_nav("point2", "WAIT_Q_FROM_2")  # point2로 이동
-            elif self._state == "WAIT_SPACE_FROM_4":  # 업무3 상차 완료
-                self._start_nav("point1", "WAIT_Q_FROM_1_TO_4")  # point1로 이동
-            else:
-                self.get_logger().info(f"Ignoring SPACE in {self._state}")  # 무시
+    def _load_cb(self, msg):
+        # 상차 완료 콜백 (Bool)
+        if not msg.data:
             return
+        if self._state == "WAIT_SPACE_FROM_1":  # 업무1 상차 완료
+            self._start_nav("point2", "WAIT_Q_FROM_2")
+        elif self._state == "WAIT_SPACE_FROM_4":  # 업무3 상차 완료
+            self._start_nav("point0", "WAIT_Q_FROM_1_TO_4")
+        else:
+            self.get_logger().info(f"Ignoring load_done in {self._state}")
 
-        if cmd.upper() == "U":  # GUI 하차 완료
-            if self._state == "WAIT_Q_FROM_4_TO_3":  # 업무2 하차 완료
-                self._start_nav("point3", "WAIT_SPACE_FROM_3")  # point3 복귀
-            elif self._state == "WAIT_Q_FROM_1_TO_4":  # 업무3 하차 완료
-                self._start_nav("point4", "WAIT_SPACE_FROM_4")  # point4 복귀
-            else:
-                self.get_logger().info(f"Ignoring U in {self._state}")  # 무시
+    def _unload_cb(self, msg):
+        # 하차 완료 콜백 (Bool)
+        if not msg.data:
             return
-
-        self.get_logger().info(f"Unknown GUI command: {cmd}")  # 정해져있지않는 키보드 입력이 들어왔을 때 로그
+        if self._state == "WAIT_Q_FROM_4_TO_3":  # 업무2 하차 완료
+            self._start_nav("point3", "WAIT_SPACE_FROM_3")
+        elif self._state == "WAIT_Q_FROM_1_TO_4":  # 업무3 하차 완료
+            self._start_nav("point4", "WAIT_SPACE_FROM_4")
+        else:
+            self.get_logger().info(f"Ignoring unload_done in {self._state}")
 
     def _manip_cb(self, msg):
-        # 매니퓰레이터 명령 콜백
-        cmd = msg.data.strip()  # 입력 문자열 정리
-        if not cmd:
-            return  # 빈 입력 무시
-        # 매니퓰레이터 명령: Q, W
-        if cmd.lower() == "q":
-            if self._state == "WAIT_Q_FROM_2":  # 업무1 하차 완료
-                self._start_nav("point1", "WAIT_SPACE_FROM_1")  # point1 복귀
-            elif self._state == "WAIT_Q_FROM_4_TO_3":  # 업무2 하차 완료
-                self._start_nav("point3", "WAIT_SPACE_FROM_3")  # point3 복귀
-            elif self._state == "WAIT_Q_FROM_1_TO_4":  # 업무3 하차 완료
-                self._start_nav("point4", "WAIT_SPACE_FROM_4")  # point4 복귀
-            else:
-                self.get_logger().info(f"Ignoring Q in {self._state}")  #할당된 작업과 다른 작업명령이 들어왔을 때 무시 
-            return
-
-        if cmd.lower() == "w":
-            if self._state == "WAIT_SPACE_FROM_3":  # 업무2 상차 완료
-                self._start_nav("point4", "WAIT_Q_FROM_4_TO_3")  # point4 이동
-            else:
-                self.get_logger().info(f"Ignoring W in {self._state}")  # 할당된 작업과 다른 작업명령이 들어왔을 때 무시 
-            return
-
-        self.get_logger().info(f"Unknown manip command: {cmd}")  # 정해져있지않는 키보드 입력이 들어왔을 때 로그
+        # 매니퓰레이터 완료 신호 콜백 (Bool)
+        if not msg.data:
+            return  # False는 무시
+        # 상태에 따라 상차/하차 완료로 해석
+        if self._state == "WAIT_SPACE_FROM_3":  # 업무2 상차 완료
+            self._start_nav("point4", "WAIT_Q_FROM_4_TO_3")  # point4 이동
+        elif self._state == "WAIT_Q_FROM_2":  # 업무1 하차 완료
+            self._start_nav("point1", "WAIT_SPACE_FROM_1")  # point1 복귀
+        elif self._state == "WAIT_Q_FROM_4_TO_3":  # 업무2 하차 완료
+            self._start_nav("point3", "WAIT_SPACE_FROM_3")  # point3 복귀
+        elif self._state == "WAIT_Q_FROM_1_TO_4":  # 업무3 하차 완료
+            self._start_nav("point4", "WAIT_SPACE_FROM_4")  # point4 복귀
+        else:
+            self.get_logger().info(f"Ignoring manip_done in {self._state}")  # 무시
 
     def _start_nav(self, point_name, post_state):
         # 네비게이션 시작
@@ -199,8 +198,11 @@ class ScenarioManager(Node):
 
         # 성공 시 도착 토픽 발행 + 다음 상태 전이
         arrived = self._target_point or "unknown"  # 도착 지점 이름
-        self._arrived_pub.publish(String(data=arrived))  # 도착 토픽 발행
-        self.get_logger().info(f"Arrived at {arrived}")  # 로그 출력
+        arrived_id = self._point_to_id(arrived)  # 포인트 → 숫자 ID
+        self._arrived_pub.publish(Int32(data=arrived_id))  # 도착 토픽 발행
+        self.get_logger().info(f"Arrived at {arrived} ({arrived_id})")  # 로그 출력
+        # 도착 시 매니퓰레이터 시작 신호
+        self._manip_start_pub.publish(Bool(data=True))
         self._state = self._post_nav_state or "READY"  # 상태 전이
         self._target_point = None  # 목표 초기화
         self._post_nav_state = None  # 다음 상태 초기화
@@ -236,6 +238,17 @@ class ScenarioManager(Node):
         pose.pose.orientation.z = float(goal["yaw_z"])  # yaw z
         pose.pose.orientation.w = float(goal["yaw_w"])  # yaw w
         return pose  # Pose 반환
+
+    def _point_to_id(self, point_name):
+        # 포인트 이름 → 숫자 ID
+        mapping = {
+            "point0": 0,
+            "point1": 1,
+            "point2": 2,
+            "point3": 3,
+            "point4": 4,
+        }
+        return mapping.get(point_name, -1)
 
 
 def main():

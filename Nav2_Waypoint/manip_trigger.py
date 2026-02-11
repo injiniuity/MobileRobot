@@ -7,32 +7,27 @@ os.environ.setdefault(
 
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String
+from std_msgs.msg import String, Bool, Int32
 
 
 class ManipTrigger(Node):
     def __init__(self):
         super().__init__("manip_trigger")
-        self._manip_pub = self.create_publisher(String, "/manip_cmd", 10)
+        self._manip_pub = self.create_publisher(Bool, "/pick_and_place/done", 10)
         self.create_subscription(String, "/keyboard_raw", self._raw_cb, 10)
-        self.create_subscription(String, "/arrived_point", self._arrived_cb, 10)
+        self.create_subscription(Int32, "/arrived_point", self._arrived_cb, 10)
 
     def _raw_cb(self, msg):
         cmd = msg.data.strip()
         if not cmd:
             return
         if cmd.lower() == "q":
-            self._manip_pub.publish(String(data="Q"))
-            self.get_logger().info("Manipulator command sent: Q")
-        elif cmd.lower() == "w":
-            self._manip_pub.publish(String(data="W"))
-            self.get_logger().info("Manipulator command sent: W")
+            self._manip_pub.publish(Bool(data=True))
+            self.get_logger().info("Manipulator done sent: True")
 
     def _arrived_cb(self, msg):
-        point = msg.data.strip()
-        if not point:
-            return
-        self.get_logger().info(f"Arrived point received: {point}")
+        point_id = msg.data
+        self.get_logger().info(f"Arrived point received: {point_id}")
 
 
 def main():

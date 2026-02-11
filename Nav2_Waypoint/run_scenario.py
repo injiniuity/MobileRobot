@@ -10,7 +10,6 @@ from rclpy.executors import MultiThreadedExecutor
 
 from keyboard_trigger import KeyboardTrigger
 from gui_trigger import GuiTrigger
-from manip_trigger import ManipTrigger
 from Nav2_classes import GoToGoal
 from scenario_manager import ScenarioManager
 
@@ -52,24 +51,21 @@ Q : 매니퓰레이터 하차 완료 (업무1에서 사용)
 def main():
     rclpy.init()
     executor = MultiThreadedExecutor()
-    key_node = KeyboardTrigger()
     gui_node = GuiTrigger()
-    manip_node = ManipTrigger()
     nav_node = GoToGoal()
     scenario_node = ScenarioManager()
 
-    executor.add_node(key_node)
     executor.add_node(gui_node)
-    executor.add_node(manip_node)
     executor.add_node(nav_node)
     executor.add_node(scenario_node)
 
     try:
         executor.spin()
+    except KeyboardInterrupt:
+        pass
     finally:
-        key_node.destroy_node()
+        executor.shutdown()
         gui_node.destroy_node()
-        manip_node.destroy_node()
         nav_node.destroy_node()
         scenario_node.destroy_node()
         rclpy.shutdown()

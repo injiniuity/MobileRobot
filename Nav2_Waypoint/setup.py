@@ -13,6 +13,8 @@ setup(
         "manip_trigger",
         "scenario_manager",
         "Nav2_classes",
+        "battery_tcp_bridge",
+        "battery_cmd_publisher",
     ],
     data_files=[
         ("share/ament_index/resource_index/packages", [f"resource/{package_name}"]),
@@ -30,6 +32,8 @@ setup(
             "keyboard_trigger = keyboard_trigger:main",
             "gui_trigger = gui_trigger:main",
             "manip_trigger = manip_trigger:main",
+            "battery_tcp_bridge = battery_tcp_bridge:main",
+            "battery_cmd_publisher = battery_cmd_publisher:main",
         ],
     },
 )
