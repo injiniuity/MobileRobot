@@ -48,6 +48,10 @@ class ScenarioManager(Node):
         self._manip_sub = self.create_subscription(
             Bool, "/pick_and_place/done", self._manip_cb, qos  # 매니퓰레이터 완료 신호
         )
+        # 업무2 전용(jetcobot) 완료 신호
+        self._manip_sub_jetcobot = self.create_subscription(
+            Bool, "/jetcobot/pick_and_place/done", self._manip_jetcobot_cb, qos
+        )
         # 도착 지점 알림(포인트 이름으로 토픽발행)
         self._arrived_pub = self.create_publisher(Int32, "/arrived_point", 10)
         # 매니퓰레이터 시작 신호
@@ -66,20 +70,20 @@ class ScenarioManager(Node):
         return qos  # QoS 반환
 
     def _move_cb(self, msg):
-        # 이동 역할 콜백 (1/3/4/P)
+        # 이동 역할 콜백 (1/3/4/0)
         cmd = msg.data.strip()
         if not cmd:
             return
-        if cmd.lower() == "p":
+        if cmd == "0":
             self._go_start_point()
             return
         if cmd in ("1", "3", "4"):
             if cmd == "1":
-                self._interrupt_and_go("point1", "WAIT_SPACE_FROM_1")
+                self._interrupt_and_go("point1-1", "WAIT_SPACE_FROM_1")
             elif cmd == "3":
                 self._interrupt_and_go("point3", "WAIT_SPACE_FROM_3")
             elif cmd == "4":
-                self._interrupt_and_go("point4", "WAIT_SPACE_FROM_4")
+                self._interrupt_and_go("point4-2", "WAIT_SPACE_FROM_4")
             return
         self.get_logger().info(f"Unknown move role: {cmd}")
 
@@ -90,7 +94,7 @@ class ScenarioManager(Node):
         if self._state == "WAIT_SPACE_FROM_1":  # 업무1 상차 완료
             self._start_nav("point2", "WAIT_Q_FROM_2")
         elif self._state == "WAIT_SPACE_FROM_4":  # 업무3 상차 완료
-            self._start_nav("point0", "WAIT_Q_FROM_1_TO_4")
+            self._start_nav("point1-2", "WAIT_Q_FROM_1_TO_4")
         else:
             self.get_logger().info(f"Ignoring load_done in {self._state}")
 
@@ -101,7 +105,7 @@ class ScenarioManager(Node):
         if self._state == "WAIT_Q_FROM_4_TO_3":  # 업무2 하차 완료
             self._start_nav("point3", "WAIT_SPACE_FROM_3")
         elif self._state == "WAIT_Q_FROM_1_TO_4":  # 업무3 하차 완료
-            self._start_nav("point4", "WAIT_SPACE_FROM_4")
+            self._start_nav("point4-2", "WAIT_SPACE_FROM_4")
         else:
             self.get_logger().info(f"Ignoring unload_done in {self._state}")
 
@@ -109,17 +113,20 @@ class ScenarioManager(Node):
         # 매니퓰레이터 완료 신호 콜백 (Bool)
         if not msg.data:
             return  # False는 무시
-        # 상태에 따라 상차/하차 완료로 해석
-        if self._state == "WAIT_SPACE_FROM_3":  # 업무2 상차 완료
-            self._start_nav("point4", "WAIT_Q_FROM_4_TO_3")  # point4 이동
-        elif self._state == "WAIT_Q_FROM_2":  # 업무1 하차 완료
-            self._start_nav("point1", "WAIT_SPACE_FROM_1")  # point1 복귀
-        elif self._state == "WAIT_Q_FROM_4_TO_3":  # 업무2 하차 완료
-            self._start_nav("point3", "WAIT_SPACE_FROM_3")  # point3 복귀
-        elif self._state == "WAIT_Q_FROM_1_TO_4":  # 업무3 하차 완료
-            self._start_nav("point4", "WAIT_SPACE_FROM_4")  # point4 복귀
+        # 기본 done 토픽은 업무1 하차 완료만 처리
+        if self._state == "WAIT_Q_FROM_2":  # 업무1 하차 완료
+            self._start_nav("point1-1", "WAIT_SPACE_FROM_1")  # point1 복귀
         else:
             self.get_logger().info(f"Ignoring manip_done in {self._state}")  # 무시
+
+    def _manip_jetcobot_cb(self, msg):
+        # jetcobot done 토픽은 업무2 상차 완료만 처리
+        if not msg.data:
+            return
+        if self._state == "WAIT_SPACE_FROM_3":
+            self._start_nav("point4-1", "WAIT_Q_FROM_4_TO_3")
+        else:
+            self.get_logger().info(f"Ignoring jetcobot manip_done in {self._state}")
 
     def _start_nav(self, point_name, post_state):
         # 네비게이션 시작
@@ -247,6 +254,10 @@ class ScenarioManager(Node):
             "point2": 2,
             "point3": 3,
             "point4": 4,
+            "point1-1": 11,
+            "point1-2": 12,
+            "point4-1": 41,
+            "point4-2": 42,
         }
         return mapping.get(point_name, -1)
 

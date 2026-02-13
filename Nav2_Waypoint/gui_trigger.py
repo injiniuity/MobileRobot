@@ -22,7 +22,7 @@ class GuiTrigger(Node):
         cmd = msg.data.strip()
         if not cmd:
             return
-        if cmd in ("1", "3", "4", "P"):
+        if cmd in ("1", "3", "4", "0"):
             self._move_pub.publish(String(data=cmd))
             self.get_logger().info(f"Move role sent: {cmd}")
             return

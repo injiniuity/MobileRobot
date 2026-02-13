@@ -39,7 +39,7 @@ nav2_waypoint/
 ## 주요 토픽/액션
 ### 토픽(Topic)
 - `/keyboard_raw` (String): 키보드 원시 입력
-- `/move_role` (String): 이동 역할(1/3/4/P)
+- `/move_role` (String): 이동 역할(1/3/4/0)
 - `/load_done` (Bool): 상차 완료 신호
 - `/unload_done` (Bool): 하차 완료 신호
 - `/pick_and_place/done` (Bool): 매니퓰레이터 완료 신호
@@ -53,7 +53,7 @@ nav2_waypoint/
 - `1` : 업무1 시작 → point1
 - `3` : 업무2 시작 → point3
 - `4` : 업무3 시작 → point4
-- `P` : 대기 장소(point0)
+- `0` : 대기 장소(point0)
 
 ### 상차 완료(`/load_done`)
 - `True` : 상차 완료

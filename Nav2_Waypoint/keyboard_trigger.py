@@ -54,10 +54,10 @@ class KeyboardTrigger(Node):
                     self._ensure_newline()
                     self._raw_pub.publish(String(data="Q"))
                     self.get_logger().info("Raw key sent: Q")
-                elif ch.lower() == "p":
+                elif ch == "0":
                     self._ensure_newline()
-                    self._raw_pub.publish(String(data="P"))
-                    self.get_logger().info("Raw key sent: P")
+                    self._raw_pub.publish(String(data="0"))
+                    self.get_logger().info("Raw key sent: 0")
                 elif ch.lower() == "x":
                     self._ensure_newline()
                     self.get_logger().info("Quit requested")
